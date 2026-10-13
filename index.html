@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ภารกิจนักคิด พิชิตปัญหา</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Cute & Bright Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Prompt for modern kid-friendly Thai typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Prompt', 'sans-serif'],
+                    },
+                    colors: {
+                        'kid-yellow': '#FFD166',
+                        'kid-green': '#06D6A0',
+                        'kid-blue': '#118AB2',
+                        'kid-pink': '#FF70A6',
+                        'kid-purple': '#8338EC',
+                        'kid-orange': '#FF9F1C',
+                        'kid-bg': '#F4F7FE'
+                    },
+                    animation: {
+                        'bounce-short': 'bounce 0.6s infinite alternate',
+                        'pulse-slow': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'wiggle': 'wiggle 0.5s ease-in-out infinite',
+                        'float': 'float 3s ease-in-out infinite'
+                    },
+                    keyframes: {
+                        wiggle: {
+                            '0%, 100%': { transform: 'rotate(-3deg)' },
+                            '50%': { transform: 'rotate(3deg)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-8px)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #F4F7FE;
+            touch-action: manipulation;
+            user-select: none;
+        }
+        
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 3px solid #E2E8F0;
+        }
+
+        .btn-pop {
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .btn-pop:hover {
+            transform: translateY(-4px) scale(1.02);
+        }
+        .btn-pop:active {
+            transform: translateY(2px) scale(0.98);
+        }
+
+        .robot-shadow {
+            filter: drop-shadow(0 10px 15px rgba(17, 138, 178, 0.25));
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            opacity: 0.8;
+            border-radius: 50%;
+            animation: fall 3s linear forwards;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col justify-between selection:bg-kid-pink selection:text-white pb-6">
+
+    <!-- Top Navigation / Header -->
+    <header class="w-full bg-white shadow-sm border-b-4 border-kid-yellow sticky top-0 z-30 px-4 py-3">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-kid-yellow rounded-2xl flex items-center justify-center text-xl shadow-inner">
+                    🤖
+                </div>
+                <div>
+                    <h1 class="text-lg md:text-xl font-bold text-slate-800 leading-tight">ภารกิจนักคิด พิชิตปัญหา</h1>
+                    <p class="text-xs text-slate-500 font-medium hidden sm:block">วิทยาการคำนวณ: การแยกส่วนประกอบและการย่อยปัญหา</p>
+                </div>
+            </div>
+
+            <!-- Score & Sound controls -->
+            <div class="flex items-center space-x-3">
+                <div class="bg-amber-100 border-2 border-amber-300 rounded-xl px-3 py-1 flex items-center space-x-2">
+                    <i class="fa-solid fa-star text-amber-500 text-lg animate-pulse"></i>
+                    <span id="score-display" class="font-bold text-amber-800 text-lg">0</span>
+                    <span class="text-xs text-amber-600 font-semibold">คะแนน</span>
+                </div>
+
+                <button id="sound-btn" onclick="toggleSound()" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 border-2 border-slate-300 flex items-center justify-center text-slate-600 transition">
+                    <i id="sound-icon" class="fa-solid fa-volume-high text-lg"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-4xl w-full mx-auto p-4 md:p-6 flex-grow flex flex-col justify-center">
+
+        <!-- Progress Bar Section -->
+        <div id="progress-container" class="mb-6 hidden">
+            <div class="flex justify-between items-center mb-1 text-sm font-bold text-slate-600">
+                <span id="stage-badge" class="bg-kid-blue text-white px-3 py-0.5 rounded-full text-xs">ด่านที่ 1/5</span>
+                <span id="stage-title-text" class="text-slate-500 font-medium">รู้จักการแยกปัญหา</span>
+            </div>
+            <div class="w-full bg-slate-200 h-4 rounded-full overflow-hidden p-0.5 border border-slate-300">
+                <div id="progress-bar" class="bg-gradient-to-r from-kid-green to-kid-blue h-full rounded-full transition-all duration-500" style="width: 20%;"></div>
+            </div>
+        </div>
+
+        <!-- SCREEN 1: WELCOME / START SCREEN -->
+        <div id="welcome-screen" class="glass-card rounded-3xl p-6 md:p-10 text-center shadow-xl border-4 border-kid-blue flex flex-col items-center">
+            <div class="relative mb-6">
+                <div class="w-32 h-32 md:w-40 md:h-40 bg-gradient-to-tr from-cyan-400 to-blue-500 rounded-full flex items-center justify-center text-6xl md:text-7xl shadow-lg border-4 border-white animate-float robot-shadow">
+                    🤖
+                </div>
+                <div class="absolute -bottom-2 -right-2 bg-kid-yellow text-slate-800 font-bold px-3 py-1 rounded-full border-2 border-white text-xs shadow-md">
+                    พร้อมลุย!
+                </div>
+            </div>
+
+            <h2 class="text-2xl md:text-4xl font-extrabold text-slate-800 mb-3">
+                ยินดีต้อนรับสู่อาณาจักรนักคิด!
+            </h2>
+            <p class="text-slate-600 text-base md:text-lg max-w-xl mb-6">
+                มาช่วย <span class="font-bold text-kid-blue">"หุ่นยนต์น้อย"</span> แก้ไขปัญหาต่าง ๆ ในชีวิตประจำวันด้วยพลังของ <span class="font-bold text-kid-purple">"การแยกปัญหา"</span> กันเถอะ!
+            </p>
+
+            <div class="bg-blue-50 border-2 border-blue-200 rounded-2xl p-4 text-left max-w-md w-full mb-8 text-sm md:text-base text-slate-700">
+                <div class="font-bold text-blue-900 mb-2 flex items-center">
+                    <i class="fa-solid fa-lightbulb text-amber-500 text-xl mr-2"></i> เป้าหมายภารกิจ:
+                </div>
+                <ul class="space-y-1.5 list-disc list-inside text-slate-600">
+                    <li>เรียนรู้วิธีแบ่งปัญหาใหญ่เป็นขั้นตอนย่อย ๆ</li>
+                    <li>สะสมคะแนน 50 คะแนนเต็ม</li>
+                    <li>ปลดล็อกเหรียญรางวัลสุดเท่!</li>
+                </ul>
+            </div>
+
+            <button onclick="startGame()" class="btn-pop bg-gradient-to-r from-kid-green to-emerald-500 text-white font-bold text-xl px-10 py-4 rounded-2xl shadow-lg border-b-4 border-emerald-700 hover:brightness-110 flex items-center space-x-3">
+                <span>เริ่มภารกิจเลย!</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+
+        <!-- GAME STAGE CONTAINER -->
+        <div id="stage-container" class="hidden">
+            <!-- Stage content injected dynamically by JS -->
+        </div>
+
+        <!-- QUIZ CONTAINER -->
+        <div id="quiz-container" class="hidden">
+            <!-- Final Quiz injected dynamically by JS -->
+        </div>
+
+        <!-- SUMMARY & CERTIFICATE SCREEN -->
+        <div id="result-screen" class="hidden glass-card rounded-3xl p-6 md:p-8 text-center shadow-2xl border-4 border-kid-yellow">
+            <!-- Content injected dynamically -->
+        </div>
+
+    </main>
+
+    <!-- FEEDBACK / EXPLANATION MODAL -->
+    <div id="feedback-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div id="modal-card" class="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full shadow-2xl border-4 border-kid-green transform transition-all scale-95 opacity-0 text-center relative overflow-hidden">
+            <div id="modal-badge" class="w-20 h-20 rounded-full mx-auto flex items-center justify-center text-4xl mb-4 shadow-inner">
+                🎉
+            </div>
+            <h3 id="modal-title" class="text-2xl font-extrabold mb-2">เก่งมาก!</h3>
+            <p id="modal-text" class="text-slate-600 mb-6 text-base md:text-lg leading-relaxed">
+                คำอธิบาย...
+            </p>
+            <button id="modal-btn" onclick="closeModal()" class="btn-pop w-full bg-kid-green text-white font-bold text-lg py-3 rounded-xl shadow-md border-b-4 border-emerald-700">
+                ลุยต่อเลย!
+            </button>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="text-center text-slate-400 text-xs py-2">
+        สื่อการเรียนรู้วิทยาการคำนวณ สำหรับนักเรียนชั้นประถมศึกษาปีที่ 5
+    </footer>
+
+    <script>
+        // Sound FX Engine using Web Audio API
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let soundEnabled = true;
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'correct') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                osc.frequency.setValueAtTime(1046.50, now + 0.3); // C6
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+                osc.start(now);
+                osc.stop(now + 0.6);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.setValueAtTime(180, now + 0.15);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            } else if (type === 'click') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+                osc.start(now);
+                osc.stop(now + 0.08);
+            } else if (type === 'win') {
+                // Victory Fanfare
+                [261.63, 329.63, 392.00, 523.25, 659.25, 783.99].forEach((freq, idx) => {
+                    const o = audioCtx.createOscillator();
+                    const g = audioCtx.createGain();
+                    o.connect(g);
+                    g.connect(audioCtx.destination);
+                    o.frequency.setValueAtTime(freq, now + (idx * 0.1));
+                    g.gain.setValueAtTime(0.15, now + (idx * 0.1));
+                    g.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.1) + 0.3);
+                    o.start(now + (idx * 0.1));
+                    o.stop(now + (idx * 0.1) + 0.3);
+                });
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById('sound-icon');
+            if (soundEnabled) {
+                icon.className = 'fa-solid fa-volume-high text-lg text-slate-600';
+            } else {
+                icon.className = 'fa-solid fa-volume-xmark text-lg text-red-400';
+            }
+        }
+
+        // Global State Variables
+        let currentStage = 1;
+        let score = 0;
+        let stageScores = [0, 0, 0, 0, 0];
+        let modalCallback = null;
+
+        // Final Quiz Questions Bank
+        const quizBank = [
+            {
+                q: "ข้อใดอธิบายความหมายของ 'การแยกปัญหา' ได้ถูกต้องที่สุด?",
+                options: [
+                    "การทำทุกอย่างพร้อมกันในเวลาเดียว",
+                    "การแบ่งปัญหาใหญ่ให้ออกเป็นปัญหาย่อย ๆ ที่จัดการง่ายขึ้น",
+                    "การข้ามปัญหาที่ซับซ้อนไปทำเรื่องง่ายแทน",
+                    "การขอให้ผู้อื่นแก้ปัญหาให้ทั้งหมด"
+                ],
+                ans: 1,
+                explain: "การแยกปัญหา (Decomposition) คือการย่อยงานใหญ่หรือปัญหาซับซ้อนให้กลายเป็นขั้นตอนย่อยเล็ก ๆ เพื่อแก้ได้ง่ายขึ้น"
+            },
+            {
+                q: "ประโยชน์ที่สำคัญที่สุดของการแยกปัญหาคืออะไร?",
+                options: [
+                    "ทำให้ไม่ต้องลงมือทำงานด้วยตนเอง",
+                    "ช่วยให้เข้าใจปัญหาและวางแผนแก้ไขทีละส่วนได้ชัดเจน",
+                    "ทำให้ใช้เวลาในการทำงานนานขึ้นกว่าเดิม",
+                    "ช่วยตัดขั้นตอนที่ไม่ชอบทิ้งไป"
+                ],
+                ans: 1,
+                explain: "เมื่อเราแยกปัญหาเป็นส่วน ย่อย ๆ เราจะมองเห็นโครงสร้างงานชัดเจน และแก้ไขทีละจุดได้ไม่สับสน"
+            },
+            {
+                q: "หากต้องการทำภารกิจ 'ทำความสะอาดโรงอาหาร' ควรอบย่อยเป็นปัญหาย่อยอย่างไร?",
+                options: [
+                    "เช็ดโต๊ะ → กวาดพื้น → ถูพื้น → จัดเก้าอี้",
+                    "ยืนรอให้คนอื่นทำเสร็จก่อน",
+                    "ถูพื้นก่อนแล้วค่อยกวาดขยะทีหลัง",
+                    "ซื้อขนมมากินระหว่างรอ"
+                ],
+                ans: 0,
+                explain: "การแบ่งงานเป็นขั้นตอนเรียงตามความเหมาะสม (กวาดก่อนถู) ทำให้การทำความสะอาดมีประสิทธิภาพ"
+            },
+            {
+                q: "ข้อใด ไม่ใช่ การใช้วิธีแยกปัญหาในชีวิตประจำวัน?",
+                options: [
+                    "การทำการบ้านโดยแบ่งทำทีละวิชา",
+                    "การจัดกระเป๋าเดินทางโดยแยกหมวดหมู่เสื้อผ้าและของใช้",
+                    "การหยิบหนังสือทุกเล่มใส่กระเป๋าโดยไม่ดูตารางเรียน",
+                    "การทำต้มยำกุ้งโดยเตรียมวัตถุดิบแยกไว้เป็นส่วน ๆ"
+                ],
+                ans: 2,
+                explain: "การหยิบใส่โดยไม่คิดเป็นการยัดรวม ไม่ใช่การวางแผนแยกแยะองค์ประกอบย่อย"
+            },
+            {
+                q: "ในการวางแผนทำรายงานกลุ่ม การแยกปัญหาสามารถนำมาประยุกต์ใช้อย่างไร?",
+                options: [
+                    "ให้หัวหน้ากลุ่มทำคนเดียวทั้งหมด",
+                    "แบ่งหัวข้อย่อยให้สมาชิกแต่ละคนไปค้นคว้า แล้วนำมารวมกัน",
+                    "ส่งรายงานเปล่าครูไปก่อน",
+                    "ต่างคนต่างทำเรื่องเดียวกันซ้ำ ๆ"
+                ],
+                ans: 1,
+                explain: "การกระจายงานย่อยให้สมาชิกช่วยกันทำตามความถนัด ช่วยให้งานใหญ่สำเร็จได้เร็วขึ้น"
+            }
+        ];
+
+        function updateScore(pts) {
+            score += pts;
+            document.getElementById('score-display').innerText = score;
+        }
+
+        function startGame() {
+            playSound('click');
+            document.getElementById('welcome-screen').classList.add('hidden');
+            document.getElementById('progress-container').classList.remove('hidden');
+            document.getElementById('stage-container').classList.remove('hidden');
+            score = 0;
+            currentStage = 1;
+            stageScores = [0, 0, 0, 0, 0];
+            document.getElementById('score-display').innerText = score;
+            loadStage(currentStage);
+        }
+
+        function setProgressBar(stage) {
+            const bar = document.getElementById('progress-bar');
+            const badge = document.getElementById('stage-badge');
+            const title = document.getElementById('stage-title-text');
+
+            const percent = (stage / 5) * 100;
+            bar.style.width = `${percent}%`;
+            badge.innerText = `ด่านที่ ${stage}/5`;
+
+            const titles = [
+                "รู้จักการแยกปัญหา",
+                "แยกปัญหาในชีวิตประจำวัน",
+                "ช่วยหุ่นยนต์จัดห้อง",
+                "ภารกิจเรียงลำดับ",
+                "ภารกิจสุดท้าย"
+            ];
+            title.innerText = titles[stage - 1] || "";
+        }
+
+        function showFeedbackModal(isSuccess, title, message, onNext) {
+            const modal = document.getElementById('feedback-modal');
+            const card = document.getElementById('modal-card');
+            const badge = document.getElementById('modal-badge');
+            const titleElem = document.getElementById('modal-title');
+            const textElem = document.getElementById('modal-text');
+            const btn = document.getElementById('modal-btn');
+
+            modalCallback = onNext;
+
+            if (isSuccess) {
+                playSound('correct');
+                card.className = "bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full shadow-2xl border-4 border-kid-green text-center relative overflow-hidden transform transition-all scale-100 opacity-100";
+                badge.className = "w-20 h-20 rounded-full mx-auto flex items-center justify-center text-4xl mb-4 bg-emerald-100 text-emerald-600 border-2 border-emerald-300";
+                badge.innerHTML = "🌟";
+                titleElem.className = "text-2xl font-extrabold mb-2 text-emerald-600";
+                btn.className = "btn-pop w-full bg-kid-green text-white font-bold text-lg py-3 rounded-xl shadow-md border-b-4 border-emerald-700";
+                btn.innerText = "ลุยต่อเลย!";
+                triggerConfetti();
+            } else {
+                playSound('wrong');
+                card.className = "bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full shadow-2xl border-4 border-kid-pink text-center relative overflow-hidden transform transition-all scale-100 opacity-100";
+                badge.className = "w-20 h-20 rounded-full mx-auto flex items-center justify-center text-4xl mb-4 bg-rose-100 text-rose-500 border-2 border-rose-300";
+                badge.innerHTML = "💡";
+                titleElem.className = "text-2xl font-extrabold mb-2 text-rose-600";
+                btn.className = "btn-pop w-full bg-kid-pink text-white font-bold text-lg py-3 rounded-xl shadow-md border-b-4 border-rose-700";
+                btn.innerText = "ลองใหม่อีกที!";
+            }
+
+            titleElem.innerText = title;
+            textElem.innerText = message;
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            playSound('click');
+            document.getElementById('feedback-modal').classList.add('hidden');
+            if (modalCallback) {
+                const cb = modalCallback;
+                modalCallback = null;
+                cb();
+            }
+        }
+
+        function triggerConfetti() {
+            for (let i = 0; i < 20; i++) {
+                const conf = document.createElement('div');
+                conf.className = 'confetti';
+                conf.style.left = Math.random() * 100 + 'vw';
+                conf.style.backgroundColor = ['#FFD166', '#06D6A0', '#118AB2', '#FF70A6', '#8338EC'][Math.floor(Math.random() * 5)];
+                conf.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+                document.body.appendChild(conf);
+                setTimeout(() => conf.remove(), 3000);
+            }
+        }
+
+        function loadStage(stageNum) {
+            setProgressBar(stageNum);
+            const container = document.getElementById('stage-container');
+            container.innerHTML = '';
+
+            switch (stageNum) {
+                case 1:
+                    renderStage1(container);
+                    break;
+                case 2:
+                    renderStage2(container);
+                    break;
+                case 3:
+                    renderStage3(container);
+                    break;
+                case 4:
+                    renderStage4(container);
+                    break;
+                case 5:
+                    renderStage5(container);
+                    break;
+            }
+        }
+
+        // --- STAGE 1: Multiple Choice Concept ---
+        function renderStage1(container) {
+            container.innerHTML = `
+                <div class="glass-card rounded-3xl p-6 md:p-8 shadow-xl border-4 border-kid-blue">
+                    <div class="flex items-center space-x-4 mb-6 bg-blue-50 p-4 rounded-2xl border-2 border-blue-200">
+                        <div class="text-4xl animate-bounce-short">🎒</div>
+                        <div>
+                            <span class="text-xs font-bold text-blue-600 uppercase tracking-wider">สถานการณ์</span>
+                            <h3 class="text-lg md:text-xl font-extrabold text-slate-800">
+                                หุ่นยนต์น้อยต้องการจัดกระเป๋านักเรียนให้พร้อมไปโรงเรียน
+                            </h3>
+                        </div>
+                    </div>
+
+                    <p class="font-bold text-base md:text-lg text-slate-700 mb-4">
+                        ❓ นักเรียนคิดว่า ข้อใดคือการใช้แนวคิด <span class="text-kid-purple underline">"การแยกปัญหา"</span> ที่ถูกต้องที่สุด?
+                    </p>
+
+                    <div class="grid grid-cols-1 gap-3 mb-6">
+                        <button onclick="checkStage1('A')" class="btn-pop text-left p-4 rounded-2xl border-2 border-slate-200 bg-white hover:bg-slate-50 font-medium text-slate-700 flex items-center space-x-3 shadow-sm">
+                            <span class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold">A</span>
+                            <span>จัดกระเป๋าให้เสร็จโดยไม่คิดอะไรเลย</span>
+                        </button>
+
+                        <button onclick="checkStage1('B')" class="btn-pop text-left p-4 rounded-2xl border-2 border-slate-200 bg-white hover:bg-slate-50 font-medium text-slate-700 flex items-center space-x-3 shadow-sm">
+                            <span class="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold">B</span>
+                            <span>แบ่งงานเป็น: ตรวจตารางเรียน → เตรียมหนังสือ → เตรียมสมุด → เตรียมอุปกรณ์ → ตรวจความเรียบร้อย</span>
+                        </button>
+
+                        <button onclick="checkStage1('C')" class="btn-pop text-left p-4 rounded-2xl border-2 border-slate-200 bg-white hover:bg-slate-50 font-medium text-slate-700 flex items-center space-x-3 shadow-sm">
+                            <span class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">C</span>
+                            <span>หยิบของทุกอย่างที่เห็นบนโต๊ะยัดใส่กระเป๋า</span>
+                        </button>
+
+                        <button onclick="checkStage1('D')" class="btn-pop text-left p-4 rounded-2xl border-2 border-slate-200 bg-white hover:bg-slate-50 font-medium text-slate-700 flex items-center space-x-3 shadow-sm">
+                            <span class="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold">D</span>
+                            <span>ให้เพื่อนช่วยจัดกระเป๋าแทนเรา</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function checkStage1(ans) {
+            if (ans === 'B') {
+                if (stageScores[0] === 0) {
+                    stageScores[0] = 10;
+                    updateScore(10);
+                }
+                showFeedbackModal(
+                    true,
+                    "ถูกต้องครับ! 🎉",
+                    "เก่งมาก! เราแบ่งงานใหญ่ 'การจัดกระเป๋า' ให้เป็นงานย่อย ๆ ทีละขั้นตอน จึงเรียกว่า การแยกปัญหา ทำให้เราทำงานได้ครบถ้วนและถูกต้อง!",
+                    () => { loadStage(2); }
+                );
+            } else {
+                showFeedbackModal(
+                    false,
+                    "ยังไม่ถูกต้องนะครับ 🤔",
+                    "การแยกปัญหาคือการนำภารกิจที่ซับซ้อนมา 'แบ่งออกเป็นขั้นตอนย่อย ๆ' เพื่อให้ทำตามได้ง่ายขึ้น ลองเลือกคำตอบที่แบ่งงานเป็นขั้นตอนดูนะ!",
+                    () => {}
+                );
+            }
+        }
+
+        // --- STAGE 2: Sandwich Making Sequence & Drag/Click Ordering ---
+        let stage2Items = [
+            { id: 1, text: "เตรียมขนมปัง 🍞" },
+            { id: 2, text: "เตรียมผัก 🥗" },
+            { id: 3, text: "เตรียมไส้แซนด์วิช 🧀" },
+            { id: 4, text: "ใส่ไส้ลงบนขนมปัง 🥪" },
+            { id: 5, text: "ประกบขนมปัง 🍞" },
+            { id: 6, text: "จัดใส่จานพร้อมทาน 🍽️" }
+        ];
+        let stage2UserOrder = [];
+
+        function renderStage2(container) {
+            // Shuffle initial pool slightly for fun, or present in unordered slots
+            let shuffled = [...stage2Items].sort(() => Math.random() - 0.5);
+            stage2UserOrder = [];
+
+            container.innerHTML = `
+                <div class="glass-card rounded-3xl p-6 md:p-8 shadow-xl border-4 border-kid-orange">
+                    <div class="flex items-center space-x-4 mb-4 bg-amber-50 p-4 rounded-2xl border-2 border-amber-200">
+                        <div class="text-4xl animate-bounce-short">🥪</div>
+                        <div>
+                            <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">สถานการณ์</span>
+                            <h3 class="text-lg md:text-xl font-extrabold text-slate-800">
+                                มินต้องการทำแซนด์วิชแสนอร่อยสำหรับมื้อเช้า
+                            </h3>
+                        </div>
+                    </div>
+
+                    <p class="font-bold text-sm md:text-base text-slate-700 mb-3">
+                        👇 คลิกเลือกการ์ดขั้นตอนการย่อยงานตามลำดับก่อน-หลังให้ถูกต้อง:
+                    </p>
+
+                    <!-- Selected Slots Area -->
+                    <div id="stage2-selected" class="min-h-[100px] p-3 bg-amber-100/50 rounded-2xl border-2 border-dashed border-amber-300 mb-4 flex flex-wrap gap-2 items-center">
+                        <span id="stage2-placeholder" class="text-slate-400 text-sm italic w-full text-center">คลิกการ์ดด้านล่างเพื่อเรียงลำดับที่นี่...</span>
+                    </div>
+
+                    <!-- Available Pool Area -->
+                    <div id="stage2-pool" class="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-6">
+                        ${shuffled.map(item => `
+                            <button id="s2-btn-${item.id}" onclick="selectStage2Item(${item.id})" class="btn-pop p-3 rounded-xl border-2 border-amber-200 bg-white hover:bg-amber-50 font-semibold text-slate-700 text-sm shadow-sm text-left">
+                                ${item.text}
+                            </button>
+                        `).join('')}
+                    </div>
+
+                    <div class="flex justify-between items-center">
+                        <button onclick="resetStage2()" class="btn-pop bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 py-2 rounded-xl text-sm">
+                            <i class="fa-solid fa-rotate-left mr-1"></i> เริ่มใหม่
+                        </button>
+                        <button onclick="checkStage2()" class="btn-pop bg-kid-orange text-white font-bold px-6 py-3 rounded-xl text-base shadow-md border-b-4 border-amber-700">
+                            ตรวจคำตอบ <i class="fa-solid fa-check ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectStage2Item(id) {
+            playSound('click');
+            if (stage2UserOrder.includes(id)) return;
+
+            stage2UserOrder.push(id);
+            const item = stage2Items.find(i => i.id === id);
+            
+            document.getElementById(`s2-btn-${id}`).classList.add('opacity-40', 'pointer-events-none');
+
+            const selectedContainer = document.getElementById('stage2-selected');
+            const placeholder = document.getElementById('stage2-placeholder');
+            if (placeholder) placeholder.style.display = 'none';
+
+            const badge = document.createElement('div');
+            badge.id = `s2-selected-${id}`;
+            badge.className = "bg-white border-2 border-amber-400 px-3 py-1.5 rounded-xl font-bold text-amber-900 text-xs sm:text-sm shadow-sm flex items-center animate-fade-in";
+            badge.innerHTML = `<span class="bg-amber-400 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs mr-2">${stage2UserOrder.length}</span> ${item.text}`;
+            selectedContainer.appendChild(badge);
+        }
+
+        function resetStage2() {
+            playSound('click');
+            renderStage2(document.getElementById('stage-container'));
+        }
+
+        function checkStage2() {
+            if (stage2UserOrder.length < stage2Items.length) {
+                showFeedbackModal(false, "ยังเลือกไม่ครบนะครับ", "เลือกการ์ดขั้นตอนย่อยให้ครบทั้ง 6 ขั้นตอนก่อนตรวจคำตอบนะ!", () => {});
+                return;
+            }
+
+            // Correct order: 1, 2, 3 (preparation in any relative order) then 4, 5, 6
+            // Standard order strictly 1, 2, 3, 4, 5, 6 OR prep steps 1..3 interchangeable
+            const prepCorrect = [1, 2, 3].every(val => stage2UserOrder.slice(0, 3).includes(val));
+            const cookCorrect = stage2UserOrder[3] === 4 && stage2UserOrder[4] === 5 && stage2UserOrder[6 - 1] === 6;
+
+            if (prepCorrect && cookCorrect) {
+                if (stageScores[1] === 0) {
+                    stageScores[1] = 10;
+                    updateScore(10);
+                }
+                showFeedbackModal(
+                    true,
+                    "ยอดเยี่ยมมาก! 🥪",
+                    "ปัญหาใหญ่คือ 'การทำแซนด์วิช' เราสามารถย่อยเป็นงานเตรียมวัตถุดิบ แล้วจึงเข้าสู่ขั้นตอนการทำและจัดจานได้อย่างเป็นระบบ!",
+                    () => { loadStage(3); }
+                );
+            } else {
+                showFeedbackModal(
+                    false,
+                    "ลองใหม่อีกนิดนะ!",
+                    "คำใบ้: เราควร 'เตรียมวัตถุดิบ' (ขนมปัง/ผัก/ไส้) ให้พร้อมก่อน แล้วจึงนำมา 'ใส่ไส้' → 'ประกบ' → 'จัดใส่จาน' ครับ",
+                    () => { resetStage2(); }
+                );
+            }
+        }
+
+        // --- STAGE 3: Selecting Relevant Sub-tasks ---
+        const stage3Tasks = [
+            { id: 1, text: "เก็บของเล่น 🧸", correct: true },
+            { id: 2, text: "จัดหนังสือบนโต๊ะ 📚", correct: true },
+            { id: 3, text: "ทำการบ้านวิชาคณิตศาสตร์ ✏️", correct: false },
+            { id: 4, text: "ทิ้งขยะในถังขยะ 🗑️", correct: true },
+            { id: 5, text: "รดน้ำต้นไม้หน้าบ้าน 🪴", correct: false },
+            { id: 6, text: "เช็ดทำความสะอาดโต๊ะ 🧽", correct: true }
+        ];
+        let stage3Selected = new Set();
+
+        function renderStage3(container) {
+            stage3Selected.clear();
+            container.innerHTML = `
+                <div class="glass-card rounded-3xl p-6 md:p-8 shadow-xl border-4 border-kid-pink">
+                    <div class="flex items-center space-x-4 mb-4 bg-pink-50 p-4 rounded-2xl border-2 border-pink-200">
+                        <div class="text-4xl animate-bounce-short">🧹</div>
+                        <div>
+                            <span class="text-xs font-bold text-pink-600 uppercase tracking-wider">สถานการณ์</span>
+                            <h3 class="text-lg md:text-xl font-extrabold text-slate-800">
+                                ห้องของหุ่นยนต์รกมาก เขาต้องการทำความสะอาดและจัดห้อง
+                            </h3>
+                        </div>
+                    </div>
+
+                    <p class="font-bold text-sm md:text-base text-slate-700 mb-4">
+                        👇 คลิกเลือกเฉพาะงานย่อยที่ <span class="text-kid-pink underline">"เกี่ยวข้องกันกับการจัดทำความสะอาดห้อง"</span> เท่านั้น:
+                    </p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                        ${stage3Tasks.map(t => `
+                            <button id="s3-task-${t.id}" onclick="toggleStage3Task(${t.id})" class="btn-pop p-4 rounded-2xl border-2 border-slate-200 bg-white hover:bg-pink-50 font-bold text-slate-700 text-left flex items-center justify-between shadow-sm transition">
+                                <span>${t.text}</span>
+                                <i id="s3-icon-${t.id}" class="fa-regular fa-circle text-slate-300 text-xl"></i>
+                            </button>
+                        `).join('')}
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button onclick="checkStage3()" class="btn-pop bg-kid-pink text-white font-bold px-8 py-3 rounded-xl text-base shadow-md border-b-4 border-rose-700">
+                            ส่งงานย่อย <i class="fa-solid fa-paper-plane ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleStage3Task(id) {
+            playSound('click');
+            const btn = document.getElementById(`s3-task-${id}`);
+            const icon = document.getElementById(`s3-icon-${id}`);
+
+            if (stage3Selected.has(id)) {
+                stage3Selected.delete(id);
+                btn.classList.remove('border-kid-pink', 'bg-pink-50');
+                btn.classList.add('border-slate-200', 'bg-white');
+                icon.className = "fa-regular fa-circle text-slate-300 text-xl";
+            } else {
+                stage3Selected.add(id);
+                btn.classList.remove('border-slate-200', 'bg-white');
+                btn.classList.add('border-kid-pink', 'bg-pink-50');
+                icon.className = "fa-solid fa-circle-check text-kid-pink text-xl";
+            }
+        }
+
+        function checkStage3() {
+            const correctIds = stage3Tasks.filter(t => t.correct).map(t => t.id);
+            const userSet = Array.from(stage3Selected);
+
+            const isExactMatch = correctIds.length === userSet.length && correctIds.every(id => stage3Selected.has(id));
+
+            if (isExactMatch) {
+                if (stageScores[2] === 0) {
+                    stageScores[2] = 10;
+                    updateScore(10);
+                }
+                showFeedbackModal(
+                    true,
+                    "ถูกต้องเก่งมาก! ✨",
+                    "การเก็บของเล่น, จัดหนังสือ, ทิ้งขยะ และเช็ดโต๊ะ คืองานย่อยที่ตรงกับปัญหาใหญ่ 'การทำความสะอาดห้อง' ส่วนการทำการบ้านและรดน้ำต้นไม้นอกบ้านไม่ใช่งานย่อยของภารกิจนี้!",
+                    () => { loadStage(4); }
+                );
+            } else {
+                showFeedbackModal(
+                    false,
+                    "มีงานย่อยบางส่วนยังไม่ถูกต้อง!",
+                    "คำใบ้: สังเกตงานที่เกี่ยวข้องกันภายในห้อง และคัดงานที่ไม่เกี่ยวกับการทำความสะอาดห้องออกไปนะลองดูใหม่ครับ!",
+                    () => {}
+                );
+            }
+        }
+
+        // --- STAGE 4: Morning Routine Order ---
+        let stage4Items = [
+            { id: 1, text: "ตื่นนอน ⏰" },
+            { id: 2, text: "อาบน้ำ 🚿" },
+            { id: 3, text: "แต่งตัว 👕" },
+            { id: 4, text: "รับประทานอาหารเช้า 🍳" },
+            { id: 5, text: "เตรียมกระเป๋า 🎒" },
+            { id: 6, text: "เดินทางไปโรงเรียน 🏫" }
+        ];
+        let stage4Current = [...stage4Items];
+
+        function renderStage4(container) {
+            // Mix up items
+            stage4Current = [...stage4Items].sort(() => Math.random() - 0.5);
+
+            container.innerHTML = `
+                <div class="glass-card rounded-3xl p-6 md:p-8 shadow-xl border-4 border-kid-purple">
+                    <div class="flex items-center space-x-4 mb-4 bg-purple-50 p-4 rounded-2xl border-2 border-purple-200">
+                        <div class="text-4xl animate-bounce-short">☀️</div>
+                        <div>
+                            <span class="text-xs font-bold text-purple-600 uppercase tracking-wider">สถานการณ์</span>
+                            <h3 class="text-lg md:text-xl font-extrabold text-slate-800">
+                                นักเรียนต้องการเตรียมตัวไปโรงเรียนในตอนเช้าอย่างเป็นระบบ
+                            </h3>
+                        </div>
+                    </div>
+
+                    <p class="font-bold text-sm md:text-base text-slate-700 mb-3">
+                        👇 ปรับเรียงลำดับขั้นตอนโดยกดปุ่ม <i class="fa-solid fa-arrow-up text-kid-purple"></i> ขึ้น หรือ <i class="fa-solid fa-arrow-down text-kid-purple"></i> ลง ให้ถูกต้อง:
+                    </p>
+
+                    <div id="stage4-list" class="space-y-2 mb-6">
+                        <!-- Dynamic list items -->
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button onclick="checkStage4()" class="btn-pop bg-kid-purple text-white font-bold px-8 py-3 rounded-xl text-base shadow-md border-b-4 border-purple-900">
+                            ตรวจสอบลำดับ <i class="fa-solid fa-check-double ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            updateStage4UI();
+        }
+
+        function updateStage4UI() {
+            const listElem = document.getElementById('stage4-list');
+            listElem.innerHTML = stage4Current.map((item, idx) => `
+                <div class="bg-white p-3.5 rounded-2xl border-2 border-purple-200 flex items-center justify-between shadow-sm animate-fade-in">
+                    <div class="flex items-center space-x-3">
+                        <span class="w-7 h-7 rounded-full bg-purple-100 text-purple-800 font-extrabold flex items-center justify-center text-sm">
+                            ${idx + 1}
+                        </span>
+                        <span class="font-bold text-slate-700 text-sm md:text-base">${item.text}</span>
+                    </div>
+                    <div class="flex space-x-1">
+                        <button onclick="moveStage4(${idx}, -1)" ${idx === 0 ? 'disabled class="opacity-30 p-2"' : 'class="btn-pop p-2 bg-purple-100 text-purple-700 rounded-xl hover:bg-purple-200"'}>
+                            <i class="fa-solid fa-arrow-up"></i>
+                        </button>
+                        <button onclick="moveStage4(${idx}, 1)" ${idx === stage4Current.length - 1 ? 'disabled class="opacity-30 p-2"' : 'class="btn-pop p-2 bg-purple-100 text-purple-700 rounded-xl hover:bg-purple-200"'}>
+                            <i class="fa-solid fa-arrow-down"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function moveStage4(index, direction) {
+            playSound('click');
+            const targetIdx = index + direction;
+            if (targetIdx < 0 || targetIdx >= stage4Current.length) return;
+            
+            const temp = stage4Current[index];
+            stage4Current[index] = stage4Current[targetIdx];
+            stage4Current[targetIdx] = temp;
+
+            updateStage4UI();
+        }
+
+        function checkStage4() {
+            const isCorrect = stage4Current.every((item, idx) => item.id === idx + 1);
+
+            if (isCorrect) {
+                if (stageScores[3] === 0) {
+                    stageScores[3] = 10;
+                    updateScore(10);
+                }
+                showFeedbackModal(
+                    true,
+                    "สุดยอดมาก! 🚀",
+                    "ยอดเยี่ยม! การแบ่งงานออกเป็นขั้นตอนเล็ก ๆ และเรียงลำดับ ตื่นนอน → อาบน้ำ → แต่งตัว → กินข้าว → เตรียมกระเป๋า → ไปโรงเรียน ช่วยให้ชีวิตประจําวันเราเป็นระเบียบสุด ๆ!",
+                    () => { loadStage(5); }
+                );
+            } else {
+                showFeedbackModal(
+                    false,
+                    "ลำดับยังสลับกันอยู่นิดหน่อย!",
+                    "ลองคิดดูนะ: เราควรตื่นนอนเป็นอันดับแรก และไปโรงเรียนเป็นอันดับสุดท้าย ลองใช้ปุ่มขึ้น-ลง ปรับเรียงใหม่นะ!",
+                    () => {}
+                );
+            }
+        }
+
+        // --- STAGE 5: Science Fair Categorization / Grouping ---
+        const stage5Tasks = [
+            { id: 1, name: "ตกแต่งห้องเรียน 🎨", category: "decor" },
+            { id: 2, name: "ทำป้ายชื่องาน 🪧", category: "decor" },
+            { id: 3, name: "เตรียมโต๊ะทดลอง 🪑", category: "equip" },
+            { id: 4, name: "เตรียมอุปกรณ์วิทยาศาสตร์ 🧪", category: "equip" },
+            { id: 5, name: "แบ่งหน้าที่สมาชิกกลุ่ม 👥", category: "plan" },
+            { id: 6, name: "ตรวจสอบความเรียบร้อย 📋", category: "plan" }
+        ];
+
+        let stage5Assignments = {}; // taskId -> 'decor' | 'equip' | 'plan'
+
+        function renderStage5(container) {
+            stage5Assignments = {};
+            container.innerHTML = `
+                <div class="glass-card rounded-3xl p-6 md:p-8 shadow-xl border-4 border-kid-green">
+                    <div class="flex items-center space-x-4 mb-4 bg-emerald-50 p-4 rounded-2xl border-2 border-emerald-200">
+                        <div class="text-4xl animate-bounce-short">🔬</div>
+                        <div>
+                            <span class="text-xs font-bold text-emerald-600 uppercase tracking-wider">ภารกิจใหญ่ระดับโรงเรียน</span>
+                            <h3 class="text-lg md:text-xl font-extrabold text-slate-800">
+                                ห้องเรียนจะจัดงานวันวิทยาศาสตร์! ต้องช่วยกันแบ่งและจัดกลุ่มงานย่อย
+                            </h3>
+                        </div>
+                    </div>
+
+                    <p class="font-bold text-sm md:text-base text-slate-700 mb-4">
+                        👇 จัดกลุ่มงานย่อยโดยคลิกเลือกหมวดหมู่ให้เหมาะสมกับการจัดงาน:
+                    </p>
+
+                    <div class="space-y-3 mb-6">
+                        ${stage5Tasks.map(t => `
+                            <div class="bg-white p-3.5 rounded-2xl border-2 border-emerald-200 flex flex-col sm:flex-row items-start sm:items-center justify-between shadow-sm gap-2">
+                                <span class="font-bold text-slate-800 text-sm md:text-base">${t.name}</span>
+                                <div class="flex flex-wrap gap-1 w-full sm:w-auto">
+                                    <button id="s5-btn-${t.id}-plan" onclick="assignStage5(${t.id}, 'plan')" class="btn-pop px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-600 bg-slate-50 hover:bg-purple-100">
+                                        📌 วางแผน
+                                    </button>
+                                    <button id="s5-btn-${t.id}-equip" onclick="assignStage5(${t.id}, 'equip')" class="btn-pop px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-600 bg-slate-50 hover:bg-blue-100">
+                                        🧪 อุปกรณ์
+                                    </button>
+                                    <button id="s5-btn-${t.id}-decor" onclick="assignStage5(${t.id}, 'decor')" class="btn-pop px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-600 bg-slate-50 hover:bg-amber-100">
+                                        🎨 ตกแต่ง
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button onclick="checkStage5()" class="btn-pop bg-kid-green text-white font-bold px-8 py-3 rounded-xl text-base shadow-md border-b-4 border-emerald-700">
+                            เข้าสู่แบบทดสอบท้ายเกม <i class="fa-solid fa-chevron-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function assignStage5(taskId, category) {
+            playSound('click');
+            stage5Assignments[taskId] = category;
+
+            ['plan', 'equip', 'decor'].forEach(cat => {
+                const btn = document.getElementById(`s5-btn-${taskId}-${cat}`);
+                if (cat === category) {
+                    btn.className = "btn-pop px-3 py-1.5 rounded-xl border-2 border-emerald-500 text-xs font-extrabold text-white bg-kid-green shadow-sm";
+                } else {
+                    btn.className = "btn-pop px-3 py-1.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-600 bg-slate-50 hover:bg-slate-100";
+                }
+            });
+        }
+
+        function checkStage5() {
+            if (Object.keys(stage5Assignments).length < stage5Tasks.length) {
+                showFeedbackModal(false, "ยังเลือกไม่ครบทุกงานนะ!", "โปรดเลือกกลุ่มงานให้ครบทั้ง 6 งานย่อยก่อนไปต่อนะครับ", () => {});
+                return;
+            }
+
+            const isAllCorrect = stage5Tasks.every(t => stage5Assignments[t.id] === t.category);
+
+            if (isAllCorrect) {
+                if (stageScores[4] === 0) {
+                    stageScores[4] = 10;
+                    updateScore(10);
+                }
+                showFeedbackModal(
+                    true,
+                    "สมบูรณ์แบบมาก! 🏆",
+                    "เก่งมาก! น้อง ๆ สามารถจำแนกและจัดกลุ่มงานย่อยของงานวันวิทยาศาสตร์ได้อย่างถูกต้อง ถือว่าสอบผ่านการย่อยปัญหาใหญ่เรียบร้อยแล้ว!",
+                    () => { startFinalQuiz(); }
+                );
+            } else {
+                showFeedbackModal(
+                    false,
+                    "มีบางงานเลือกหมวดไม่ตรงกัน",
+                    "คำใบ้:\n- ทำป้าย/ตกแต่ง = หมวดตกแต่ง\n- โต๊ะ/อุปกรณ์ทดลอง = หมวดอุปกรณ์\n- แบ่งหน้าที่/ตรวจงาน = หมวดวางแผน\nลองปรับเปลี่ยนดูนะ!",
+                    () => {}
+                );
+            }
+        }
+
+        let currentQuizIdx = 0;
+        let quizScore = 0;
+        let selectedQuizQuestions = [];
+
+        function startFinalQuiz() {
+            document.getElementById('stage-container').classList.add('hidden');
+            document.getElementById('quiz-container').classList.remove('hidden');
+
+            // Pick 3-5 random questions from bank
+            selectedQuizQuestions = [...quizBank].sort(() => Math.random() - 0.5).slice(0, 5);
+            currentQuizIdx = 0;
+            quizScore = 0;
+
+            renderQuizQuestion();
+        }
+
+        function renderQuizQuestion() {
+            const container = document.getElementById('quiz-container');
+            const q = selectedQuizQuestions[currentQuizIdx];
+
+            container.innerHTML = `
+                <div class="glass-card rounded-3xl p-6 md:p-8 shadow-xl border-4 border-amber-400">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="bg-amber-100 text-amber-800 font-bold px-3 py-1 rounded-full text-xs">
+                            📝 แบบทดสอบท้ายเกม (${currentQuizIdx + 1}/${selectedQuizQuestions.length})
+                        </span>
+                        <span class="text-xs text-slate-500 font-semibold">ทบทวนความรู้</span>
+                    </div>
+
+                    <h3 class="text-lg md:text-xl font-bold text-slate-800 mb-6">
+                        ${q.q}
+                    </h3>
+
+                    <div class="space-y-3 mb-6">
+                        ${q.options.map((opt, idx) => `
+                            <button onclick="answerQuiz(${idx})" class="btn-pop w-full text-left p-4 rounded-2xl border-2 border-slate-200 bg-white hover:bg-amber-50 font-medium text-slate-700 flex items-center space-x-3 shadow-sm">
+                                <span class="w-8 h-8 rounded-xl bg-amber-200 text-amber-900 font-extrabold flex items-center justify-center text-sm">${String.fromCharCode(65 + idx)}</span>
+                                <span class="text-sm md:text-base">${opt}</span>
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function answerQuiz(optionIdx) {
+            const q = selectedQuizQuestions[currentQuizIdx];
+
+            if (optionIdx === q.ans) {
+                quizScore += 2; // Quiz bonus or tracked
+                showFeedbackModal(
+                    true,
+                    "ตอบถูกต้อง! 🎯",
+                    q.explain,
+                    () => {
+                        currentQuizIdx++;
+                        if (currentQuizIdx < selectedQuizQuestions.length) {
+                            renderQuizQuestion();
+                        } else {
+                            showResults();
+                        }
+                    }
+                );
+            } else {
+                showFeedbackModal(
+                    false,
+                    "ยังไม่ถูกต้องนะครับ 😅",
+                    q.explain,
+                    () => {
+                        currentQuizIdx++;
+                        if (currentQuizIdx < selectedQuizQuestions.length) {
+                            renderQuizQuestion();
+                        } else {
+                            showResults();
+                        }
+                    }
+                );
+            }
+        }
+
+        function showResults() {
+            playSound('win');
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('progress-container').classList.add('hidden');
+
+            const resultContainer = document.getElementById('result-screen');
+            resultContainer.classList.remove('hidden');
+
+            // Rank Logic
+            let rankTitle = "";
+            let rankIcon = "";
+            let rankBg = "";
+
+            if (score >= 45) {
+                rankTitle = "🏆 นักคิดแก้ปัญหามือโปร";
+                rankIcon = "👑";
+                rankBg = "from-amber-400 to-yellow-500";
+            } else if (score >= 35) {
+                rankTitle = "⭐ นักคิดเก่งมาก";
+                rankIcon = "🌟";
+                rankBg = "from-blue-400 to-indigo-500";
+            } else if (score >= 25) {
+                rankTitle = "👍 นักคิดฝึกหัด";
+                rankIcon = "🧩";
+                rankBg = "from-emerald-400 to-teal-500";
+            } else {
+                rankTitle = "🌱 นักคิดกำลังพัฒนา";
+                rankIcon = "🌱";
+                rankBg = "from-purple-400 to-pink-500";
+            }
+
+            resultContainer.innerHTML = `
+                <div class="w-24 h-24 bg-gradient-to-tr ${rankBg} rounded-full mx-auto flex items-center justify-center text-5xl mb-4 shadow-xl border-4 border-white animate-bounce-short">
+                    ${rankIcon}
+                </div>
+
+                <span class="text-xs font-bold text-amber-600 bg-amber-100 px-4 py-1 rounded-full uppercase tracking-wider">สรุปผลการทำภารกิจ</span>
+                <h2 class="text-3xl font-extrabold text-slate-800 mt-2 mb-1">${rankTitle}</h2>
+                <p class="text-slate-500 text-sm mb-6">ความสำเร็จจากภารกิจ "นักคิด พิชิตปัญหา"</p>
+
+                <!-- Score Board -->
+                <div class="bg-amber-50 border-2 border-amber-200 rounded-2xl p-4 max-w-sm mx-auto mb-6 flex justify-around items-center">
+                    <div>
+                        <div class="text-xs text-amber-700 font-bold">คะแนนด่านรวม</div>
+                        <div class="text-3xl font-extrabold text-amber-900">${score} / 50</div>
+                    </div>
+                    <div class="h-10 w-0.5 bg-amber-300"></div>
+                    <div>
+                        <div class="text-xs text-amber-700 font-bold">แบบทดสอบ</div>
+                        <div class="text-3xl font-extrabold text-amber-900">${quizScore} / 10</div>
+                    </div>
+                </div>
+
+                <!-- Medals Earned -->
+                <div class="mb-6">
+                    <h4 class="font-bold text-slate-700 mb-3 text-sm">🏅 เหรียญรางวัลที่ได้รับ:</h4>
+                    <div class="flex flex-wrap justify-center gap-2">
+                        <div class="bg-white border-2 border-amber-300 px-3 py-2 rounded-2xl shadow-sm flex items-center space-x-2 text-xs font-bold text-amber-900">
+                            <span>🏅</span> <span>แยกปัญหาเก่ง</span>
+                        </div>
+                        <div class="bg-white border-2 border-purple-300 px-3 py-2 rounded-2xl shadow-sm flex items-center space-x-2 text-xs font-bold text-purple-900">
+                            <span>🧩</span> <span>นักต่อจิ๊กซอว์ปัญหา</span>
+                        </div>
+                        <div class="bg-white border-2 border-blue-300 px-3 py-2 rounded-2xl shadow-sm flex items-center space-x-2 text-xs font-bold text-blue-900">
+                            <span>🚀</span> <span>นักคิดตัวน้อย</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Knowledge Summary Box -->
+                <div class="bg-blue-50 border-2 border-blue-200 rounded-2xl p-5 text-left max-w-lg mx-auto mb-8 text-sm text-slate-700 space-y-3">
+                    <div class="font-extrabold text-blue-900 flex items-center text-base">
+                        <i class="fa-solid fa-graduation-cap text-blue-600 mr-2 text-lg"></i> สรุปความรู้:
+                    </div>
+                    <p class="leading-relaxed">
+                        <span class="font-bold text-kid-blue">"การแยกปัญหา"</span> คือ การนำปัญหาใหญ่หรือภารกิจที่ซับซ้อน มาแบ่งออกเป็นปัญหาย่อยหรือขั้นตอนเล็ก ๆ เพื่อให้เราเข้าใจและแก้ปัญหาได้ง่ายขึ้น!
+                    </p>
+                    <p class="font-bold text-emerald-700 text-center pt-2 border-t border-blue-200">
+                        เก่งมาก! ตอนนี้เธอรู้จักวิธีแยกปัญหาแล้ว ลองนำวิธีนี้ไปใช้กับปัญหาในชีวิตประจำวันดูนะ! 🌟
+                    </p>
+                </div>
+
+                <button onclick="startGame()" class="btn-pop bg-gradient-to-r from-kid-blue to-cyan-500 text-white font-bold text-lg px-8 py-3.5 rounded-2xl shadow-lg border-b-4 border-blue-800">
+                    <i class="fa-solid fa-rotate-right mr-2"></i> เล่นอีกครั้ง
+                </button>
+            `;
+            triggerConfetti();
+        }
+    </script>
+</body>
+</html>
